@@ -1,7 +1,7 @@
 import cv2
 
 def SUDOKU_IMAGE_PATH():
-    return "sudoku_images/test_1.jpg"
+    return "resources/sudoku_images/test_1.jpg"
 
 def import_image_by_path(image_path):
     img = cv2.imread(image_path)
