@@ -39,6 +39,25 @@ def crop_grid(img):
 
     return oppening, bounding_rect
 
+def filter_image(oppening, bounding_rect):
+    kernel = np.zeros((11,11),dtype=np.uint8)
+    kernel[5,...] = 1
+    line = cv2.morphologyEx(oppening,cv2.MORPH_OPEN, kernel, iterations=2)
+    oppening-=line
+
+    x, y, w, h = bounding_rect
+    oppening_cann = np.empty((h, w), np.uint8)
+    oppening_cann[:, :] = oppening[:, :]
+
+    lines = cv2.HoughLinesP(oppening_cann, 1, np.pi/180, 106, 80, 10)
+    for line in lines:
+        for x1,y1,x2,y2 in line:
+            cv2.line(oppening,(x1,y1),(x2,y2),(0,0,0), 3)
+
+    oppening = cv2.morphologyEx(oppening,cv2.MORPH_OPEN, (2, 3), iterations=1)
+
+    return oppening, bounding_rect
+
 
 def show_image(title, image):
     cv2.imshow(title, image)
@@ -54,6 +73,9 @@ def main():
 
     crop, rectangle = crop_grid(processed_image)
     show_image("Cropped", crop)
+
+    filt_img, rect = filter_image(crop, rectangle)
+    show_image("Filtered", filt_img)
 
 if __name__ == '__main__':
     main()
