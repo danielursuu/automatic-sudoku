@@ -11,7 +11,7 @@ def import_image_by_path(image_path):
 
 def get_thresholded_image(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray.copy(), (5,5), 0)
+    blur = cv2.GaussianBlur(gray.copy(), (5,5), 3)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 11, 2)
 
     return thresh
@@ -59,6 +59,28 @@ def filter_image(oppening, bounding_rect):
     return oppening, bounding_rect
 
 
+def infer_grid(img):
+	"""Infers 81 cell grid from a square image."""
+	squares = []
+	side = img.shape[:1]
+	side = side[0] / 9
+	for i in range(9):
+		for j in range(9):
+			p1 = (i * side, j * side)  # Top left corner of a bounding box
+			p2 = ((i + 1) * side, (j + 1) * side)  # Bottom right corner of bounding box
+			squares.append((p1, p2))
+
+	return squares
+
+def display_rects(in_img, rects, colour=255):
+	"""Displays rectangles on the image."""
+	img = in_img.copy()
+	for rect in rects:
+		img = cv2.rectangle(img, tuple(int(x) for x in rect[0]), tuple(int(x) for x in rect[1]), colour)
+    
+	return img
+
+
 def show_image(title, image):
     cv2.imshow(title, image)
     cv2.waitKey()
@@ -74,8 +96,10 @@ def main():
     crop, rectangle = crop_grid(processed_image)
     show_image("Cropped", crop)
 
-    filt_img, rect = filter_image(crop, rectangle)
-    show_image("Filtered", filt_img)
+    squares = infer_grid(crop)
+    img = display_rects(crop,squares)
+    show_image("Rectangles", img)
+   
 
 if __name__ == '__main__':
     main()
