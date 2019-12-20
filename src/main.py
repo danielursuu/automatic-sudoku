@@ -220,6 +220,8 @@ def scale_and_centre(img, size, margin=0, background=0):
     img = cv2.resize(img, (w, h))
     img = cv2.copyMakeBorder(img, t_pad, b_pad, l_pad,
                              r_pad, cv2.BORDER_CONSTANT, None, background)
+
+    show_image(img)                          
     return cv2.resize(img, (size, size))
 
 
